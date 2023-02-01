@@ -78,10 +78,16 @@ def suggestNewTopic(request):
         if topic_exists:
             messages.success(request,'Topic already exists..!')
             return render(request, 'viewTopic.html',{'person': person, 'topics': topics, 'topic_list': topic_list})
-
-        # Create a new topic suggestion
-        SuggestedTopic.objects.create(TopicName=topicName, Person_fk=personlist)
-        return render(request, 'profile2.html',{'person': person})
+        else :
+            # Check if the topic already exists in the SuggestedTopic model
+            topic_exists = SuggestedTopic.objects.filter(TopicName=topicName).exists()
+            if topic_exists:
+                messages.success(request,'Topic already suggested..!')
+                return render(request, 'viewTopic.html',{'person': person, 'topics': topics, 'topic_list': topic_list})
+            else :
+                # Create a new topic suggestion
+                SuggestedTopic.objects.create(TopicName=topicName, Person_fk=personlist)
+                return render(request, 'viewTopic.html',{'person': person, 'topics': topics, 'topic_list': topic_list})
     else:
         return render(request, 'Topic.html',{'person': person})
     
