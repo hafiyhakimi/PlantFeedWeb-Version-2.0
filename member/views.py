@@ -3,7 +3,10 @@ from django.template import loader
 from django.http.response import Http404
 from django.shortcuts import render, redirect, get_object_or_404, resolve_url
 from django.contrib import messages
+
+from topic.models import ApprovedTopic
 from .models import Person, Memberlist, MemberRequest, Room, Message
+
 from django.contrib import auth
 from plantfeed import encryption_util
 from django.core.files.storage import FileSystemStorage
@@ -34,8 +37,12 @@ def UserReg(request):
         Person(Email=Email,Password=Password,Username=Username,Name=Name,DateOfBirth=DateOfBirth,Age=Age,District=District,State=State,
             Occupation=Occupation,About=About,Gender=Gender,MaritalStatus=MaritalStatus,UserLevel=UserLevel,Photo=Photo).save(),
 
+        approvedTopic = ApprovedTopic.objects.all()
+        person = Person.objects.filter(Email = request.POST.get('email')).first()
         messages.success(request,'The new user ' + Username + " is save succesfully..!")
-        return render(request,'registration.html')
+        if(UserLevel == 'admin'):
+            return render(request,'login.html')
+        return render(request,'Topic.html', {'approvedTopic': approvedTopic, 'person' : person})
     else :
         return render(request,'registration.html')
 

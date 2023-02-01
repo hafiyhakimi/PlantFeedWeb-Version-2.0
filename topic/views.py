@@ -37,7 +37,7 @@ import os
 # Create your views here.
 
 def selectTopic(request):
-    person = Person.objects.filter(Email=request.session['Email']).first()
+    person = Person.objects.filter(Email = request.POST.get('Email')).first()
     if request.method == 'POST':
         Topiclist = request.POST.getlist('topic')
         for topic in Topiclist:
