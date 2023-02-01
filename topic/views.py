@@ -92,18 +92,34 @@ def managetopic(request):
     if request.method == 'POST':
         stat = request.POST.get('status')
         topicName = request.POST.get('topicName')
+        
+        topic_exists = ApprovedTopic.objects.filter(TopicName=topicName).exists()
             
         if stat == 'Approve':
             ApprovedTopic.objects.create(TopicName=topicName)
             SuggestedTopic.objects.filter(TopicName=topicName).delete()
+            suggestT = SuggestedTopic.objects.all()
+            topics = ApprovedTopic.objects.all()
             return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
         elif stat == 'Reject':
             SuggestedTopic.objects.filter(TopicName=topicName).delete()
+            suggestT = SuggestedTopic.objects.all()
+            topics = ApprovedTopic.objects.all()
             return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
         elif stat == 'Delete':
             ApprovedTopic.objects.filter(TopicName=topicName).delete()
+            Topic.objects.filter(TopicName=topicName).delete()
+            suggestT = SuggestedTopic.objects.all()
+            topics = ApprovedTopic.objects.all()
             return render(request, 'ManageTopicAdmin.html',{'person': person , 'topics': topics, 'suggestT': suggestT})
         elif stat == 'Add':
+            if topic_exists:
+                suggestT = SuggestedTopic.objects.all()
+                topics = ApprovedTopic.objects.all()
+                messages.error(request, 'Topic name already exists in ApprovedTopics table!')
+                return render(request, 'ManageTopicAdmin.html',{'person': person , 'topics': topics, 'suggestT': suggestT})
             ApprovedTopic.objects.create(TopicName=topicName)
+            suggestT = SuggestedTopic.objects.all()
+            topics = ApprovedTopic.objects.all()
             return render(request, 'ManageTopicAdmin.html',{'person': person , 'topics': topics, 'suggestT': suggestT})
     return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
