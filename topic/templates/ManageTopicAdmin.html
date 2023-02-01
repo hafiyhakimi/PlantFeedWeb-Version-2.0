@@ -75,9 +75,9 @@
                 </tr>
             </thead>
             <tbody>
-
+                {% csrf_token %} {% for topics in topics %}
                 <form action="{% url 'topic:Managetopic' %}" method="POST" class="center">
-                    {% csrf_token %} {% for topics in topics %}
+                    {% csrf_token %}
                     <tr>
                         <th scope="row" value="{{ topics.TopicName }}">{{ topics.TopicName }}<input type="hidden" value="{{ topics.TopicName }}" name="topicName"></th>
                         <th scope="row">Approved<input type="hidden" value="Delete" name="status"></th>
@@ -85,9 +85,10 @@
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </th>
                     </tr>
-                    {% endfor %}
+
 
                 </form>
+                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -102,9 +103,9 @@
                 </tr>
             </thead>
             <tbody>
-
+                {% csrf_token %} {% for suggestT in suggestT %}
                 <form action="{% url 'topic:Managetopic' %}" method="POST" class="center">
-                    {% csrf_token %} {% for suggestT in suggestT %}
+                    {% csrf_token %}
                     <tr>
                         <th scope="row" value="{{ suggestT.TopicName }}">{{ suggestT.TopicName }}<input type="hidden" value="{{ suggestT.TopicName }}" name="topicName"></th>
                         <th scope="row" value="{{ suggestT.Approval }}">{{ suggestT.Approval }}</th>
@@ -114,10 +115,9 @@
                         </th>
                         <th><button type="submit" class="btn btn-success">Update Topic</button></th>
                     </tr>
-                    {% endfor %}
                     <tr></tr>
-
                 </form>
+                {% endfor %}
             </tbody>
         </table>
     </div>
