@@ -102,6 +102,13 @@ def managetopic(request):
         topic_exists = ApprovedTopic.objects.filter(TopicName=topicName).exists()
             
         if stat == 'Approve':
+            if topic_exists:
+                SuggestedTopic.objects.filter(TopicName=topicName).delete()
+                person = Person.objects.filter(Email=request.session['Email'])
+                suggestT = SuggestedTopic.objects.all()
+                topics = ApprovedTopic.objects.all()
+                messages.success(request,'Topic Suggested Topic is Already Existed in Topic Database..!')
+                return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
             ApprovedTopic.objects.create(TopicName=topicName)
             SuggestedTopic.objects.filter(TopicName=topicName).delete()
             suggestT = SuggestedTopic.objects.all()
