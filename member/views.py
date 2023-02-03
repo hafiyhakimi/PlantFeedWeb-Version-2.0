@@ -126,22 +126,21 @@ def MainMember(request):
     user=Person.objects.get(Email=request.session['Email'])
     
     try:
-        userRequestList = MemberRequest.objects.all().filter(to_user=user)
-        memberList = Memberlist.objects.all().filter(to_person=user) 
         user_topic = Topic.objects.filter(Person_fk=user).values('TopicName').distinct()
-        
-        
         suggested_person_list = []
         person_topic_list = []
         for i in user_topic:
             person_fk = Topic.objects.filter(TopicName=i['TopicName']).values_list('Person_fk', flat=True).distinct()
             suggested_person = Person.objects.filter(id__in=person_fk).exclude(id=user.id)
-            person_topic = Topic.objects.filter(TopicName=i['TopicName']).values('TopicName').distinct()
+            person_topic = Topic.objects.filter(Person_fk__in=suggested_person)
             suggested_person_list.extend(suggested_person)
             person_topic_list.extend(person_topic)
             
         suggested_person_list = list(set(suggested_person_list))
         person_topic_list = list(set(person_topic_list))
+        
+        userRequestList = MemberRequest.objects.all().filter(to_user=user)
+        memberList = Memberlist.objects.all().filter(to_person=user) 
         
         return render(request, 'MemberMainPage.html',{'userRequestList':userRequestList, 'memberList':memberList, 'suggested_person_list':suggested_person_list, 'person_topic_list':person_topic_list})
     

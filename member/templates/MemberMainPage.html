@@ -281,7 +281,7 @@
                     style="width: 45px; height: 45px; margin: 10px;">
                   <span class="username">{{suggested_person.Name}}</span>
                   <div style="float: right; margin-top: 16px;">
-                    <h5> also likes {% for topic in person_topic_list%} {{ topic.TopicName }} {% endfor%}</h5>
+                    <h5> also likes {% for topic in person_topic_list%}    {% if topic.Person_fk.id == suggested_person.id %} {{ topic.TopicName }}  {% endif %}  {% endfor%}</h5>
                   </div>
                   <div style="margin-left: 150px; float: right; padding-top: 15px;">
                     <a href="{% url 'sendMemberRequest' suggested_person.id %}"> Send member request </a>
