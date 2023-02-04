@@ -9,18 +9,18 @@ from marketplace.models import prodProduct
 class Order(models.Model):
     class Meta:
         db_table = 'Order'
-    name = models.CharField(max_length=150, default="")
-    email = models.CharField(max_length=1000, default="")
-    address = models.CharField(max_length=1000, default="")
-    payment = models.CharField(max_length=1000, default="")
-    namecard = models.CharField(max_length=1000, default="")
-    creditnumber = models.CharField(max_length=1000, default="")
-    expiration = models.CharField(max_length=1000, default="")
-    cvv = models.CharField(max_length=1000, default="")
+    name = models.CharField(max_length=150)
+    email = models.CharField(max_length=1000)
+    address = models.CharField(max_length=1000)
+    payment = models.CharField(max_length=1000)
+    namecard = models.CharField(max_length=1000)
+    creditnumber = models.CharField(max_length=1000)
+    expiration = models.CharField(max_length=1000)
+    cvv = models.CharField(max_length=1000)
     shipping = models.CharField(max_length=1000,null=True)
- 
-    transaction_code = models.CharField(max_length=1000, default="")
+    transaction_code = models.CharField(max_length=1000)
     total = models.FloatField(null=True)
+    status = models.CharField(max_length=250, null=True)
     user = models.ForeignKey(Person, on_delete=models.CASCADE)
 
 

@@ -26,12 +26,12 @@ from orders.models import Order
 
 import json
 import os
-import stripe
 # from .models import Person
 
 # Create your views here.
 def pay(request):
     tcode = 'TRANS#'+str(timezone.now())
+    orderStatus = "Payment Made"
     person=Person.objects.get(Email=request.session['Email'])
     
     for bas in Basket.objects.all().filter(Person_fk_id=person.id,is_checkout=0) :
@@ -54,29 +54,8 @@ def pay(request):
     ord.namecard = request.POST['namecard']
     ord.shipping = request.POST['shipping']
     ord.total = request.POST['total']
-    
+    ord.status = orderStatus
+
     ord.save()
-    Basket.objects.all().filter(Person_fk_id=person.id,is_checkout=0).update(is_checkout=1,transaction_code=tcode)
+    Basket.objects.all().filter(Person_fk_id=person.id,is_checkout=0).update(is_checkout=1,transaction_code=tcode, status = orderStatus)
     return redirect('orders:history')
-
-@csrf_exempt
-def stripe_webhook(request):
-    payload = request.body
-    event = None
-
-    try:
-        event = stripe.Event.construct_from(
-            json.loads(payload), stripe.api_key
-        )
-    except ValueError as e:
-        print(e)
-        return HttpResponse(status=400)
-    
-def order_placed(request):
-    basket = Basket(request)
-    basket.clear()
-    return render(request, 'payment/orderplaced.html')
-
-
-class Error(TemplateView):
-    template_name = 'payment/error.html'

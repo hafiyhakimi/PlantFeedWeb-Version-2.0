@@ -175,9 +175,23 @@
                     <td style="text-align: right;">RM{{ order.total }}</td>
                   </tr>
                 </thead>
-             
               </table>
+
+              <table style="border:none;">
+                <tr>
+                  <td><button onclick="window.history.back()">Back</button></td>
+                  <td style="text-align:right"><button id="print-button">Save Invoice</button></td>
+                </tr>
+              <br>
+            </table>
+              
 
     </section>
   </body>
+
+  <script>
+    document.getElementById("print-button").addEventListener("click", function(){
+    window.print();
+});
+  </script>
 </html>
