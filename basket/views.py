@@ -30,55 +30,27 @@ from django.http import JsonResponse
 from django.views.generic.base import TemplateView
 
 import json
-import stripe
 import os
 
-def BasketView(request, fk1):
-    product=prodProduct.objects.all()
-    allBasket=Basket.objects.all()
-    person=Person.objects.filter(Email=request.session['Email'])
-    user=Person.objects.all()
-    basket = Basket(request)
-    total = str(basket.get_total_price(fk1))
-    total = total.replace('.', '')
-    total = int(total)
+# def BasketView(request, fk1):
+#     product=prodProduct.objects.all()
+#     allBasket=Basket.objects.all()
+#     person=Person.objects.filter(Email=request.session['Email'])
+#     user=Person.objects.all()
+#     basket = Basket(request)
+#     total = str(basket.get_total_price(fk1))
+#     total = total.replace('.', '')
+#     total = int(total)
 
-    stripe.api_key = settings.STRIPE_SECRET_KEY
-    intent = stripe.PaymentIntent.create(
-        amount=total,
-        currency='myr',
-        metadata={'userid': request.user.id}
-    )
+#     stripe.api_key = settings.STRIPE_SECRET_KEY
+#     intent = stripe.PaymentIntent.create(
+#         amount=total,
+#         currency='myr',
+#         metadata={'userid': request.user.id}
+#     )
 
-    return render(request, 'payment/Payment.html', {'client_secret': intent.client_secret, 'basket':allBasket, 'product':product, 'person':person, 'user':user,
-                                                            'STRIPE_PUBLISHABLE_KEY': os.environ.get('STRIPE_PUBLISHABLE_KEY')})
-
-def basket_delete(request):
-    request.POST['item_id']
-    obj = Basket.objects.get(id=request.POST['item_id'])
-    obj.delete()
-    response = {'status':1,'message':'ok'}
-    return HttpResponse(json.dumps(response),content_type='application/json')
-
-def add_basket_qty(request):
-    request.POST['item_id']
-    obj = Basket.objects.get(id=request.POST['item_id'])
-    obj.productqty += 1
-    obj.save()
-    response = {'status':1,'message':'ok'}
-    return HttpResponse(json.dumps(response),content_type='application/json')
-
-def remove_basket_qty(request):
-    request.POST['item_id']
-    obj = Basket.objects.get(id=request.POST['item_id'])
-    if obj.productqty > 1:
-        obj.productqty -= 1
-        obj.save()
-    else :
-        obj.delete()
-
-    response = {'status':1,'message':'ok'}
-    return HttpResponse(json.dumps(response),content_type='application/json')
+#     return render(request, 'payment/Payment.html', {'client_secret': intent.client_secret, 'basket':allBasket, 'product':product, 'person':person, 'user':user,
+#                                                             'STRIPE_PUBLISHABLE_KEY': os.environ.get('STRIPE_PUBLISHABLE_KEY')})
 
 def summary(request):
     try:
@@ -101,5 +73,39 @@ def summary(request):
         return render(request,'summary.html', context)
     except prodProduct.DoesNotExist:
         raise Http404('Data does not exist')
+
+def remove_basket_qty(request):
+    request.POST['item_id']
+    obj = Basket.objects.get(id=request.POST['item_id'])
+    if obj.productqty > 1:
+        obj.productqty -= 1
+        obj.save()
+    else :
+        obj.delete()
+
+    response = {'status':1,'message':'ok'}
+    return HttpResponse(json.dumps(response),content_type='application/json')
+
+def add_basket_qty(request):
+    request.POST['item_id']
+    basket_obj = Basket.objects.get(id=request.POST['item_id'])
+    prod_obj = prodProduct.objects.get(productid=basket_obj.productid.productid)
+    
+    if prod_obj.productStock > basket_obj.productqty:
+        basket_obj.productqty += 1
+        basket_obj.save()
+        response = {'status':1,'message':'ok'}
+    else:
+        response = {'status':0,'message':'Not enough stock for this product'}
+
+    return HttpResponse(json.dumps(response),content_type='application/json')
+
+def basket_delete(request):
+    request.POST['item_id']
+    obj = Basket.objects.get(id=request.POST['item_id'])
+    obj.delete()
+    response = {'status':1,'message':'ok'}
+    return HttpResponse(json.dumps(response),content_type='application/json')
+
     
 

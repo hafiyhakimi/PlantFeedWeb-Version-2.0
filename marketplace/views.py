@@ -42,29 +42,6 @@ def mainMarketplace(request):
         return render(request,'MainMarketplace.html',{'marketplace':marketplace, 'allBasket':allBasket, 'person':person, 'user':user})
     except prodProduct.DoesNotExist:
         raise Http404('Data does not exist')
-
-# def sellProduct(request):
-#     if request.method=='POST':
-#         Title=request.POST.get('Title')
-#         Message=request.POST.get('Message')
-#         Photo=request.POST.get('Photo')
-#         Video=request.POST.get('Video')
-#         #person = Person.objects.filter(Email=request.session['id'])
-#         #Graph=request.POST.get('Graph')
-#         Feed(Title=Title,Message=Message,Photo=Photo,Video=Video).save(),
-#         messages.success(request,'The new feed is save succesfully..!')
-
-#         #data={
-#         #    u'title': Title,
-#         #    u'message':Message,
-#         #    u'photo':Photo,
-#         #    u'video':Video,
-
-#         #}
-#         #db.collection(u'sharing').document().set(data)
-#         return render(request,'SellProduct.html')
-#     else :
-#         return render(request,'SellProduct.html')
     
 def sellProduct(request, fk1):
     person = Person.objects.get(pk=fk1)
@@ -82,17 +59,8 @@ def sellProduct(request, fk1):
         product.Person_fk=person
         
         product.save()
-        # MarketplaceFeed(Title=Title,Message=Message,Photo=Photo,Video=Video,Person_fk=f).save(),
+
         messages.success(request,'The new feed is save succesfully..!')
-        
-        # Title=request.POST.get('Title')
-        # Message=request.POST.get('Message')
-        # Photo=request.POST.get('Photo')
-        # Video=request.POST.get('Video')
-        # f = Person.objects.get(pk=fk1)
-        # #Graph=request.POST.get('Graph')
-        # MarketplaceFeed(Title=Title,Message=Message,Photo=Photo,Video=Video,Person_fk=f).save(),
-        # messages.success(request,'The new feed is save succesfully..!')
 
         return redirect('marketplace:MainMarketplace')
     else :
@@ -104,7 +72,7 @@ def deleteProduct(request,fk1):
     try:
         product = prodProduct.objects.get(pk=fk1)
         product.deleteProduct()
-        return redirect('MainMarketplace')
+        return redirect('marketplace:MainMarketplace')
         
     except prodProduct.DoesNotExist:
         messages.success(request, 'The product does not exist')
@@ -131,39 +99,57 @@ def updateProduct(request,fk1):
     
     def viewMarketplaceFeed(request):
         MarketplaceFeed = MarketplaceFeed.objects.all()
-        # sharing = GroupSharing.objects.all()
         person = Person.objects.filter(Email=request.session['Email'])
         return render(request,'ViewMarketplace.html',{'MarketplaceFeed':MarketplaceFeed, 'person':person})
     
 def buy_now(request, fk1,fk2):
-    # basket = Basket(request)
     product = prodProduct.objects.get(pk=fk1)
     user = Person.objects.get(pk=fk2)
     if request.method=='POST':
-        productqty= request.POST.get('productqty')
+        productqty= int(request.POST.get('productqty'))
         basket = Basket.objects.filter(productid=product,Person_fk=user,is_checkout=0)
+
+        if product.productStock < productqty:
+            messages.error(request, f'{product.productName}(s) exceeds the stock limit in your basket')
+            return redirect('../../../MainMarketplace.html')
+
         if len(basket) == 0 : 
             basket = Basket(productqty=productqty,productid=product,Person_fk=user,is_checkout=0,transaction_code='').save()
         else :
             basket = Basket.objects.get(Person_fk=user,productid=product,is_checkout=0)
-            basket.productqty += 1
+            if basket.productqty + productqty > product.productStock:
+                messages.error(request, f'{product.productName}(s) exceeds the stock limit in your basket')
+                return redirect('../../../MainMarketplace.html')
+            basket.productqty += productqty
             basket.save()
+        
+        messages.success(request,'Item successfully added to your basket')
         return redirect('basket:summary')
     return render(request, 'summary.html', {'basket': basket})
 
+
 def add_to_basket(request, fk1,fk2):
+    
     product = prodProduct.objects.get(pk=fk1)
     user = Person.objects.get(pk=fk2)
     if request.method=='POST':
-        productqty= request.POST.get('productqty')
+        productqty= int(request.POST.get('productqty'))
         basket = Basket.objects.filter(productid=product,Person_fk=user,is_checkout=0)
+
+        if product.productStock < productqty:
+            messages.error(request, f'{product.productName}(s) exceeds the stock limit in your basket')
+            return redirect('../../../MainMarketplace.html')
+
         if len(basket) == 0 : 
             basket = Basket(productqty=productqty,productid=product,Person_fk=user,is_checkout=0,transaction_code='').save()
         else :
             basket = Basket.objects.get(Person_fk=user,productid=product,is_checkout=0)
-            basket.productqty += 1
+            if basket.productqty + productqty > product.productStock:
+                messages.error(request, f'{product.productName}(s) exceeds the stock limit in your basket')
+                return redirect('../../../MainMarketplace.html')
+            basket.productqty += productqty
             basket.save()
-            
+        
         messages.success(request,'Item successfully added to your basket')
-        return redirect('marketplace:MainMarketplace')
+        return redirect('../../../MainMarketplace.html')
     return render(request, '../../../MainMarketplace.html', {'basket': basket})
