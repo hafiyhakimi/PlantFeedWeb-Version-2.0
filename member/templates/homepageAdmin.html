@@ -15,32 +15,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
 
-<b>
-  <div>
-    <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist" >
-      <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#" role="tab" aria-controls="home" aria-selected="true">Home</a>
-      </li>
-      <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="sharing-tab" data-bs-toggle="tab" href="#" role="tab" aria-controls="sharing" aria-selected="true">User</a>
-      </li>
-      <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="discussion-tab" data-bs-toggle="tab" href="#" role="tab" aria-controls="discussion" aria-selected="true">Group</a>
-      </li>
-      <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="discussion-tab" data-bs-toggle="tab" href="#" role="tab" aria-controls="discussion" aria-selected="true">Booking</a>
-      </li>
-      <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="workshop-tab" data-bs-toggle="tab" href="#" role="tab" aria-controls="workshop" aria-selected="true">Workshop</a>
-      </li>
-      <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="marketplace-tab" data-bs-toggle="tab" href="{% url 'marketplace:MainMarketplace' %}" role="tab" aria-controls="marketplace" aria-selected="true">Marketplace</a>
-      </li>
-       <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="Managetopic-tab" data-bs-toggle="tab" href="{% url 'topic:Managetopic' %}" role="tab" aria-controls="Managetopic" aria-selected="true">Managetopic</a>
-       </li>
-    </ul>
-  </div>
+{% include 'header.html' %}
 <br/>
 <br/>
 <br/>
