@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'orders.apps.OrdersConfig',
     'topic.apps.TopicConfig',
     'django.contrib.sites',
+    'mathfilters',
 ]
 
 MIDDLEWARE = [

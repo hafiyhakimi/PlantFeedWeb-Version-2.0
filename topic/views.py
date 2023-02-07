@@ -31,7 +31,6 @@ from django.views.generic.base import TemplateView
 from topic.models import Topic, ApprovedTopic, SuggestedTopic
 
 import json
-import stripe
 import os
 
 # Create your views here.

@@ -18,10 +18,10 @@ class Person(models.Model):
     
 
     def upload_photo(self, filename):
-        path = 'media/uploads/{}'.format(filename)
+        path = 'images/{}'.format(filename)
         return path
 
-    Photo = models.ImageField(upload_to='uploads/', null=True, blank=True)
+    Photo = models.ImageField(upload_to='images/', null=True, blank=True)
 
     class Meta:
         db_table = 'login_person'
