@@ -40,7 +40,7 @@
    <hr/>
    <br/>
    
-<form method="POST" class="container text-center" action="{% url 'selectTopic' %}">
+<form method="POST" class="container text-center" action="{% url 'topic:selectTopic' %}">
   {% csrf_token %}
   {% for approvedTopic in approvedTopic %}
     <div class="form-group">

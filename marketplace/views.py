@@ -60,7 +60,7 @@ def sellProduct(request, fk1):
         
         product.save()
 
-        messages.success(request,'The new feed is save succesfully..!')
+        messages.success(request,'Product Has Been Added Succesfully..!')
 
         return redirect('marketplace:MainMarketplace')
     else :
