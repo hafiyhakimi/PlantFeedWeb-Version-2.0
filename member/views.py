@@ -3,7 +3,10 @@ from django.template import loader
 from django.http.response import Http404
 from django.shortcuts import render, redirect, get_object_or_404, resolve_url
 from django.contrib import messages
+
+from topic.models import Topic, ApprovedTopic
 from .models import Person, Memberlist, MemberRequest, Room, Message
+
 from django.contrib import auth
 from plantfeed import encryption_util
 from django.core.files.storage import FileSystemStorage
@@ -34,8 +37,12 @@ def UserReg(request):
         Person(Email=Email,Password=Password,Username=Username,Name=Name,DateOfBirth=DateOfBirth,Age=Age,District=District,State=State,
             Occupation=Occupation,About=About,Gender=Gender,MaritalStatus=MaritalStatus,UserLevel=UserLevel,Photo=Photo).save(),
 
+        approvedTopic = ApprovedTopic.objects.all()
+        person = Person.objects.filter(Email = request.POST.get('email')).first()
         messages.success(request,'The new user ' + Username + " is save succesfully..!")
-        return render(request,'registration.html')
+        if(UserLevel == 'admin'):
+            return render(request,'login.html')
+        return render(request,'Topic.html', {'approvedTopic': approvedTopic, 'person' : person})
     else :
         return render(request,'registration.html')
 
@@ -117,16 +124,28 @@ def EditProfile(request):
 def MainMember(request):
     
     user=Person.objects.get(Email=request.session['Email'])
-
     
     try:
+        user_topic = Topic.objects.filter(Person_fk=user).values('TopicName').distinct()
+        suggested_person_list = []
+        person_topic_list = []
+        for i in user_topic:
+            person_fk = Topic.objects.filter(TopicName=i['TopicName']).values_list('Person_fk', flat=True).distinct()
+            suggested_person = Person.objects.filter(id__in=person_fk).exclude(id=user.id)
+            person_topic = Topic.objects.filter(Person_fk__in=suggested_person)
+            suggested_person_list.extend(suggested_person)
+            person_topic_list.extend(person_topic)
+            
+        suggested_person_list = list(set(suggested_person_list))
+        person_topic_list = list(set(person_topic_list))
+        
         userRequestList = MemberRequest.objects.all().filter(to_user=user)
         memberList = Memberlist.objects.all().filter(to_person=user) 
         
-        return render(request, 'MemberMainPage.html',{'userRequestList':userRequestList, 'memberList':memberList })
+        return render(request, 'MemberMainPage.html',{'userRequestList':userRequestList, 'memberList':memberList, 'suggested_person_list':suggested_person_list, 'person_topic_list':person_topic_list})
     
     except:
-        return render(request, 'MemberMainPage.html')
+        return render(request, 'MemberMainPage.html', {'userRequestList':userRequestList, 'memberList':memberList, 'suggested_person_list':suggested_person_list, 'person_topic_list':person_topic_list})
 
 def SearchMember(request):
 
