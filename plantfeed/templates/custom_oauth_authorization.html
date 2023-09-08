@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorization</title>
+    <!-- Add your CSS styles here -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Authorization Request</h1>
+        <p>
+            You are about to grant access to your account data to the "PlantLink" application.
+        </p>
+        <p>
+            The application requests access to the following information:
+        </p>
+        <ul>
+            <li>User Profile Information</li>
+            <li>Plant Data</li>
+            <!-- Add more permissions here if needed -->
+        </ul>
+        <p>
+            By clicking "Authorize," you allow the application to access this data on your behalf.
+        </p>
+        <form method="post" action="{% url 'authorize' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Authorize</button>
+            <a href="{% url 'deny' %}" class="btn btn-danger">Deny</a>
+        </form>
+    </div>
+</body>
+</html>

@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'topic.apps.TopicConfig',
     'django.contrib.sites',
     'mathfilters',
+    'oauth2_provider',
+    'plantfeed',
 ]
 
 MIDDLEWARE = [
@@ -93,7 +95,7 @@ WSGI_APPLICATION = 'plantfeed.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'farming',
+        'NAME': 'oauthfarming',
         'USER':'root',
         'PASSWORD':'',
         'HOST':'localhost',
@@ -168,8 +170,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-LOGIN_REDIRECT_URL = 'Home'
-LOGIN_URL = 'Loginpage'
+LOGIN_REDIRECT_URL = 'Home', 'HomeAdmin', 'custom_oauth_authorization'
+LOGIN_URL = 'Loginpage', 'plantlinklogin'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -179,8 +181,44 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     ]
 }
+
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': 'Read scope',
+        'write': 'Write scope',
+        # Add more scopes as needed
+    },
+    'CLIENT_ID': 'TeoEbwMZQWGf4TGlCbpFmtKxfRyOxS1RCSwV19bH',  # Replace with your client ID
+    'CLIENT_SECRET': 'pbkdf2_sha256$600000$sni5XkXIL5Vs7MMF0LJthO$0d78eulHxxit4wabYdGQ++QjwSjxvRHlac5rbA635Uw=',  # Replace with your client secret
+}
+
+AUTHENTICATION_CLASSES = (
+    # ...
+    'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    # ...
+)
+
+AUTHENTICATION_BACKENDS = (
+    'oauth2_provider.backends.OAuth2Backend',
+    'django.contrib.auth.backends.ModelBackend',
+    # ...
+)
+
+# Define your OAuth2 scopes (if needed)
+OAUTH2_PROVIDER_SCOPES = {
+    'read': 'Read access',
+    'write': 'Write access',
+    # Add more scopes as needed
+}
+
+AUTH_USER_MODEL = 'member.Person'
+
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
+
+OAUTH2_PROVIDER_ACCESS_TOKEN_MODEL = 'oauth2_provider.AccessToken'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Default.primary.key.field.type

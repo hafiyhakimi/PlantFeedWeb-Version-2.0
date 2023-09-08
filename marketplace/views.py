@@ -151,5 +151,5 @@ def add_to_basket(request, fk1,fk2):
             basket.save()
         
         messages.success(request,'Item successfully added to your basket')
-        return redirect('../../../MainMarketplace.html')
+        return redirect('marketplace:MainMarketplace')
     return render(request, '../../../MainMarketplace.html', {'basket': basket})

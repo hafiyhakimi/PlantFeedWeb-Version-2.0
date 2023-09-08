@@ -3,10 +3,10 @@ from django.template import loader
 from django.http.response import Http404
 from django.shortcuts import render, redirect, get_object_or_404, resolve_url
 from django.contrib import messages
-
+from django.contrib.auth.decorators import login_required
 from topic.models import Topic, ApprovedTopic
 from .models import Person, Memberlist, MemberRequest, Room, Message
-
+from datetime import datetime
 from django.contrib import auth
 from plantfeed import encryption_util
 from django.core.files.storage import FileSystemStorage
@@ -20,7 +20,7 @@ def index(request):
 def UserReg(request):
     if request.method=='POST':
         Email = request.POST.get('email')
-        Password = request.POST.get('password')
+        Pass = request.POST.get('password')
         Username=request.POST.get('username')
         Name=request.POST.get('name')
         DateOfBirth=request.POST.get('dob')
@@ -34,7 +34,7 @@ def UserReg(request):
         UserLevel = request.POST.get('userlevel')
         #Photo = request.POST.get('Photo')
         Photo=request.FILES['Photo']
-        Person(Email=Email,Password=Password,Username=Username,Name=Name,DateOfBirth=DateOfBirth,Age=Age,District=District,State=State,
+        Person(Email=Email,Pass=Pass,Username=Username,Name=Name,DateOfBirth=DateOfBirth,Age=Age,District=District,State=State,
             Occupation=Occupation,About=About,Gender=Gender,MaritalStatus=MaritalStatus,UserLevel=UserLevel,Photo=Photo).save(),
 
         approvedTopic = ApprovedTopic.objects.all()
@@ -51,8 +51,9 @@ def UserReg(request):
 def login(request):
     if request.method == "POST":
         try:
-            Userdetails = Person.objects.get(Email = request.POST['Email'], Password = (request.POST['Pwd']))
+            Userdetails = Person.objects.get(Email = request.POST['Email'], Pass = (request.POST['Pwd']))
             UserLevel = (request.POST.get('UserLevel'))
+            Userdetails.last_login = datetime.now()
             print("Username", Userdetails)
             request.session['Email'] = Userdetails.Email
             person = Person.objects.filter(Email = request.POST['Email'])

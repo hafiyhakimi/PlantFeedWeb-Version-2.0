@@ -5,6 +5,9 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from oauth2_provider.views import AuthorizationView
+from django.contrib.auth.views import LoginView
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -17,5 +20,10 @@ urlpatterns = [
     path('payment/', include('payment.urls')),
     path('orders/', include('orders.urls')),
     path('topic/', include('topic.urls')),
-
+    # path('sso/', include('sso.provider.urls')),
+    path('authorize/', views.custom_oauth_authorization, name='custom_oauth_authorization'),
+    path('plantlink/login/', views.login_view, name='plantlinklogin'),
+    path('token-exchange/', views.token_exchange_view, name='token_exchange'),
+    path('authorize/', views.authorize, name='authorize'),
+    path('deny/', views.deny, name='deny'),
 ]
