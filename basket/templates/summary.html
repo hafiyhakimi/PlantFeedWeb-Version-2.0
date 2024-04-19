@@ -87,73 +87,79 @@
 
 {% block content %}
 <div class="container">
-<div class="col-12">
-  <h1 class="h2">Your Basket</h1>
+  <div class="col-12">
+    <h1 class="h2">Your Basket</h1>
+  </div>
+  <div class="col-12">
+    <p>Manage your <b>items</b> in your basket</p>
+  </div>
+  <hr />
 </div>
-<div class="col-12">
-  <p>Manage your <b>items</b> in your basket</p>
-</div>
-<hr />
-</div>
+
 <div class="container">
-<div class="row g-3">
   {% if allBasket.count == 0 %}
   <div class="col-12">Your basket is empty. <a href="{% url 'marketplace:MainMarketplace' %}">Shop Now!</a></div>
   {% else %}
-    {% for bas in allBasket %}
-    <div class="card mb-3 border-0 product-item">
-      <div class="row g-0">
-        <div class="col-md-2 d-none d-md-block">
-          <img class="img-fluid mx-auto d-block" alt="Responsive image" src="../media/{{ bas.productid.productPhoto }}" />
-        </div>
-        <div class="col-md-10 ps-md-3">
-          <div class="card-body p-1">
-            <p class="card-text pb-3">{{ bas.productid.productName }}</p>
-            <p class="card-text pb-3">RM {{ bas.productid.productPrice }}</p>
-            <label for="select">Qty</label>
-            <div class="mb-3">
-              <div class="d-flex gap-2">
-              <button class="btn" data-id="{{ bas.id }}" onclick="removeQTY(this)">
-                -
-                </button>
-                <input type="text"
-                  class="form-control" value="{{ bas.productqty }}">
-                  <button class="btn" data-id="{{ bas.id }}" onclick="addQTY(this)">
-                    +
-                    </button>
+  {% for seller, data in seller_products.items %}
+    <div class="container">
+      <h4>Product Seller: {{ seller }}</h4>
+      <br>
+        {% for bas in data.products %}
+            <div class="card mb-3 border-0 product-item {% if bas.disable_checkout %} disabled {% endif %}">
+                <div class="row g-0">
+                    <div class="col-md-2 d-none d-md-block">
+                        <img class="img-fluid mx-auto d-block {% if bas.disable_checkout %} disabled-image {% endif %}" alt="Responsive image" src="../media/{{ bas.productid.productPhoto }}" />
+                    </div>
+                    <div class="col-md-10 ps-md-3">
+                        <div class="card-body p-1">
+                            <p class="card-text pb-3">{{ bas.productid.productName }}</p>
+                            <p class="card-text pb-3">RM {{ bas.productid.productPrice }}</p>
+                            <p class="card-text pb-3">Stock left : {{ bas.productid.productStock }}</p>
+                            {% if bas.productid.productStock <= 5 %}
+                              <p class="text-warning">Limited stock left!</p>
+                            {% endif %}
+                            <label for="select">Qty</label>
+                            <div class="mb-3">
+                                <div class="d-flex gap-2">
+                                  <button class="btn" data-id="{{ bas.id }}" onclick="removeQTY(this)" {% if bas.productqty <= bas.productid.productStock %} {% if bas.disable_checkout %} disabled {% endif %} {% endif %}>
+                                        -
+                                    </button>
+                                    <input type="text" class="form-control" value="{{ bas.productqty }}" {% if bas.disable_checkout %} disabled {% endif %}>
+                                    <button class="btn" data-id="{{ bas.id }}" onclick="addQTY(this)" {% if bas.disable_checkout %} disabled {% endif %}>
+                                        +
+                                    </button>
+                                </div>
+                                <br>
+                                {% if bas.productqty > bas.productid.productStock %}
+                                  <div class="text-danger">Quantity exceeds available stock. Available stock is {{ bas.productid.productStock }}</div>
+                                {% elif bas.disable_checkout %}
+                                  <div class="text-danger">Item is no longer listed by seller.</div>
+                                {% endif %}
+                                <button class="btn" data-id="{{ bas.id }}" onclick="deletePROD(this)">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-              <br>
-              <button class="btn" data-id="{{ bas.id }}" onclick="deletePROD(this)">
-                Delete
-                </button>
+        {% endfor %}
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+          <div>
+              Subtotal : RM{{ data.subtotal }}
           </div>
+          <button type="button" class="btn btn-primary checkout-btn {% if data.disable_checkout %}disabled{% endif %}" data-toggle="modal" data-target="#exampleModal" data-seller-id="{{ bas.productid.Person_fk_id }}">
+            Checkout
+          </button>        
         </div>
-      </div>
+        <div class="mb-4"></div> <!-- Add spacing below -->      
     </div>
+  {% endfor %}
+  {% endif %}
 
-  
-
-    {% endfor %}
-
-
-
-  <br>
-
-  Subtotal : RM{{ total }}
-  <br>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-      Checkout
-    </button>
-  </div>
-</div>
-</div>
-{% endif %}
-
-
-
-
-
-<!-- Modal -->
+<!-- Modals -->
+{% for seller, data in seller_products.items %}
+{% for bas in data.products %}
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" onsubmit="storeData()">
 <div class="modal-dialog" role="document">
   <div class="modal-content">
@@ -166,6 +172,8 @@
     <div class="modal-body">
         <form class="needs-validation" action="{% url 'payment:pay' %}" method="POST">
           {% csrf_token %}
+          <!-- Hidden input field to store the seller ID -->
+          <input type="hidden" name="seller_id" value="{{ bas.productid.Person_fk_id }}">
           <div class="row">
             
             <div class="col-md-12 mb-3">
@@ -253,22 +261,21 @@
           </div>
         
           <br>
-          <p id="subtotal" data-price="{{ total }}">Subtotal : RM{{ total }}</p>
+          <p id="subtotal" data-price="{{ data.subtotal }}">Subtotal : RM{{ data.subtotal }}</p>
           <p >Shipping Price : RM<span id="shippingprice">-</span></p>
           <p >Total : RM<span id="total">-</span></p>
           <input name="total" type="hidden" id="totalall">
           <hr class="mb-4">
           <button class="btn btn-primary btn-lg btn-block" type="submit">Continue to checkout</button>
         </form>
-    
-
-
 
     </div>
     
   </div>
 </div>
 </div>
+{% endfor %}
+{% endfor %}
 
 <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
 

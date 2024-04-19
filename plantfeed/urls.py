@@ -21,9 +21,10 @@ urlpatterns = [
     path('orders/', include('orders.urls')),
     path('topic/', include('topic.urls')),
     # path('sso/', include('sso.provider.urls')),
-    path('authorize/', views.custom_oauth_authorization, name='custom_oauth_authorization'),
+    path('authorization/', views.custom_oauth_authorization, name='custom_oauth_authorization'),
     path('plantlink/login/', views.login_view, name='plantlinklogin'),
     path('token-exchange/', views.token_exchange_view, name='token_exchange'),
-    path('authorize/', views.authorize, name='authorize'),
-    path('deny/', views.deny, name='deny'),
+    path('authorize/successful', views.authorize, name='authorize'),
+    path('authorization/deny', views.deny, name='deny'),
+    path('api/user-data/', views.user_data_api, name='user_data_api'),
 ]

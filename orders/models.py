@@ -22,6 +22,7 @@ class Order(models.Model):
     total = models.FloatField(null=True)
     status = models.CharField(max_length=250, null=True)
     user = models.ForeignKey(Person, on_delete=models.CASCADE)
+    seller = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='seller_id')
 
 
 class OrderItem(models.Model):

@@ -42,9 +42,18 @@
             <li class="nav-item">
               <a class="nav-link" href="#">Workshop</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'marketplace:MainMarketplace' %}">Marketplace</a>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Marketplace
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="{% url 'marketplace:MainMarketplace' %}">Browse Marketplace<span class="sr-only">(current)</span></a>
+                <a class="dropdown-item" href="{% url 'marketplace:MyMarketplace' %}">My Marketplace</a>
+              </div>
             </li>
+            {% comment %} <li class="nav-item">
+              <a class="nav-link" href="{% url 'marketplace:MainMarketplace' %}">Marketplace</a>
+            </li> {% endcomment %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Profile

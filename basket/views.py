@@ -54,25 +54,46 @@ import os
 
 def summary(request):
     try:
-        product=prodProduct.objects.all()
-        person=Person.objects.get(Email=request.session['Email'])
-        user=Person.objects.all()
-        allBasket = Basket.objects.all().filter(Person_fk_id=person.id,is_checkout=0)
-        
-        total = 0
-        
-        for x in allBasket:
-            total += x.productid.productPrice * x.productqty
+        if 'Email' not in request.session:
+            # Redirect the user to the login page or handle the case when the user is not logged in
+            return redirect('login')
+
+        person = Person.objects.get(Email=request.session['Email'])
+        allBasket = Basket.objects.filter(Person_fk=person, is_checkout=False)
+
+        seller_products = {}
+
+        for basket_item in allBasket:
+            product = basket_item.productid
+            seller_name = product.Person_fk.Username
+
+            # Calculate subtotal for each product
+            subtotal = product.productPrice * basket_item.productqty
+            
+            # Check if the product quantity exceeds the available stock
+            if basket_item.productqty > product.productStock:
+                # Set a flag indicating that the checkout should be disabled for this product
+                basket_item.disable_checkout = True
+                basket_item.save()
+                # Add an error message or take appropriate action to inform the user
+            
+            # Initialize seller data if not already present
+            if seller_name not in seller_products:
+                seller_products[seller_name] = {'products': [], 'subtotal': 0}
+
+            # Append product to the seller's products list
+            seller_products[seller_name]['products'].append(basket_item)
+            # Update the subtotal for the seller
+            seller_products[seller_name]['subtotal'] += subtotal
+
         context = {
-            'allBasket': allBasket,
-            'product': product,
             'person': person,
-            'user': user,
-            'total':total
+            'allBasket': allBasket,
+            'seller_products': seller_products,
         }
-        return render(request,'summary.html', context)
-    except prodProduct.DoesNotExist:
-        raise Http404('Data does not exist')
+        return render(request, 'summary.html', context)
+    except Person.DoesNotExist:
+        raise Http404('User does not exist')
 
 def remove_basket_qty(request):
     request.POST['item_id']

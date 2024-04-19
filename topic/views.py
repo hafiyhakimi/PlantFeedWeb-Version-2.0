@@ -64,74 +64,143 @@ def updateSelectedTopic(request):
     else:
         return render(request, 'Topic.html',{'person': person})
 
+# def suggestNewTopic(request):
+#     person = Person.objects.filter(Email=request.session['Email'])
+#     personlist = Person.objects.filter(Email=request.session['Email']).first()
+#     topics = Topic.objects.filter(Person_fk=personlist).values('TopicName').distinct()
+#     topic_list = ApprovedTopic.objects.values('TopicName').distinct()
+#     if request.method == 'POST':
+#         topicName = request.POST.get('topicsuggest')
+
+#         # Check if the topic already exists in the TopicList model
+#         topic_exists = ApprovedTopic.objects.filter(TopicName=topicName).exists()
+#         if topic_exists:
+#             messages.success(request,'Topic already exists..!')
+#             return render(request, 'viewTopic.html',{'person': person, 'topics': topics, 'topic_list': topic_list})
+#         else :
+#             # Check if the topic already exists in the SuggestedTopic model
+#             topic_exists = SuggestedTopic.objects.filter(TopicName=topicName).exists()
+#             if topic_exists:
+#                 messages.success(request,'Topic already suggested..!')
+#                 return render(request, 'viewTopic.html',{'person': person, 'topics': topics, 'topic_list': topic_list})
+#             else :
+#                 # Create a new topic suggestion
+#                 SuggestedTopic.objects.create(TopicName=topicName, Person_fk=personlist)
+#                 return render(request, 'viewTopic.html',{'person': person, 'topics': topics, 'topic_list': topic_list})
+#     else:
+#         return render(request, 'Topic.html',{'person': person})
+
 def suggestNewTopic(request):
-    person = Person.objects.filter(Email=request.session['Email'])
-    personlist = Person.objects.filter(Email=request.session['Email']).first()
+    person = Person.objects.get(Email=request.session['Email'])
+    personlist = Person.objects.get(Email=request.session['Email'])
     topics = Topic.objects.filter(Person_fk=personlist).values('TopicName').distinct()
     topic_list = ApprovedTopic.objects.values('TopicName').distinct()
+    
     if request.method == 'POST':
         topicName = request.POST.get('topicsuggest')
 
         # Check if the topic already exists in the TopicList model
         topic_exists = ApprovedTopic.objects.filter(TopicName=topicName).exists()
         if topic_exists:
-            messages.success(request,'Topic already exists..!')
-            return render(request, 'viewTopic.html',{'person': person, 'topics': topics, 'topic_list': topic_list})
-        else :
+            messages.error(request, 'Topic already exists..!')
+            return render(request, 'viewTopic.html', {'person': person, 'topics': topics, 'topic_list': topic_list})
+        else:
             # Check if the topic already exists in the SuggestedTopic model
             topic_exists = SuggestedTopic.objects.filter(TopicName=topicName).exists()
             if topic_exists:
-                messages.success(request,'Topic already suggested..!')
-                return render(request, 'viewTopic.html',{'person': person, 'topics': topics, 'topic_list': topic_list})
-            else :
+                messages.error(request, 'Topic already suggested..!')
+                return render(request, 'viewTopic.html', {'person': person, 'topics': topics, 'topic_list': topic_list})
+            else:
                 # Create a new topic suggestion
                 SuggestedTopic.objects.create(TopicName=topicName, Person_fk=personlist)
-                return render(request, 'viewTopic.html',{'person': person, 'topics': topics, 'topic_list': topic_list})
+                messages.success(request, topicName + ' has been suggested successfully..!')
+                return render(request, 'viewTopic.html', {'person': person, 'topics': topics, 'topic_list': topic_list})
     else:
-        return render(request, 'Topic.html',{'person': person})
+        return render(request, 'Topic.html', {'person': person})
     
+# def managetopic(request):
+#     person = Person.objects.filter(Email=request.session['Email'])
+#     suggestT = SuggestedTopic.objects.all()
+#     topics = ApprovedTopic.objects.all()
+#     if request.method == 'POST':
+#         stat = request.POST.get('status')
+#         topicName = request.POST.get('topicName')
+        
+#         topic_exists = ApprovedTopic.objects.filter(TopicName=topicName).exists()
+            
+#         if stat == 'Approve':
+#             if topic_exists:
+#                 SuggestedTopic.objects.filter(TopicName=topicName).delete()
+#                 person = Person.objects.filter(Email=request.session['Email'])
+#                 suggestT = SuggestedTopic.objects.all()
+#                 topics = ApprovedTopic.objects.all()
+#                 messages.success(request,'Topic Suggested Topic is Already Existed in Topic Database..!')
+#                 return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
+#             ApprovedTopic.objects.create(TopicName=topicName)
+#             SuggestedTopic.objects.filter(TopicName=topicName).delete()
+#             suggestT = SuggestedTopic.objects.all()
+#             topics = ApprovedTopic.objects.all()
+#             return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
+#         elif stat == 'Reject':
+#             SuggestedTopic.objects.filter(TopicName=topicName).delete()
+#             suggestT = SuggestedTopic.objects.all()
+#             topics = ApprovedTopic.objects.all()
+#             return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
+#         elif stat == 'Delete':
+#             ApprovedTopic.objects.filter(TopicName=topicName).delete()
+#             Topic.objects.filter(TopicName=topicName).delete()
+#             suggestT = SuggestedTopic.objects.all()
+#             topics = ApprovedTopic.objects.all()
+#             return render(request, 'ManageTopicAdmin.html',{'person': person , 'topics': topics, 'suggestT': suggestT})
+#         elif stat == 'Add':
+#             if topic_exists:
+#                 suggestT = SuggestedTopic.objects.all()
+#                 topics = ApprovedTopic.objects.all()
+#                 messages.error(request, 'Topic name already exists in ApprovedTopics table!')
+#                 return render(request, 'ManageTopicAdmin.html',{'person': person , 'topics': topics, 'suggestT': suggestT})
+#             ApprovedTopic.objects.create(TopicName=topicName)
+#             suggestT = SuggestedTopic.objects.all()
+#             topics = ApprovedTopic.objects.all()
+#             return render(request, 'ManageTopicAdmin.html',{'person': person , 'topics': topics, 'suggestT': suggestT})
+#     return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
+
 def managetopic(request):
-    person = Person.objects.filter(Email=request.session['Email'])
+    person = Person.objects.get(Email=request.session['Email'])
     suggestT = SuggestedTopic.objects.all()
     topics = ApprovedTopic.objects.all()
+
     if request.method == 'POST':
         stat = request.POST.get('status')
         topicName = request.POST.get('topicName')
-        
-        topic_exists = ApprovedTopic.objects.filter(TopicName=topicName).exists()
-            
+
         if stat == 'Approve':
+            topic_exists = ApprovedTopic.objects.filter(TopicName=topicName).exists()
             if topic_exists:
                 SuggestedTopic.objects.filter(TopicName=topicName).delete()
-                person = Person.objects.filter(Email=request.session['Email'])
-                suggestT = SuggestedTopic.objects.all()
-                topics = ApprovedTopic.objects.all()
-                messages.success(request,'Topic Suggested Topic is Already Existed in Topic Database..!')
-                return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
-            ApprovedTopic.objects.create(TopicName=topicName)
-            SuggestedTopic.objects.filter(TopicName=topicName).delete()
-            suggestT = SuggestedTopic.objects.all()
-            topics = ApprovedTopic.objects.all()
-            return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
+                messages.success(request, 'Topic is already approved and exists in the Topic Database!')
+            else:
+                ApprovedTopic.objects.create(TopicName=topicName)
+                SuggestedTopic.objects.filter(TopicName=topicName).delete()
+                messages.success(request, 'Topic approved successfully!')
+        
         elif stat == 'Reject':
             SuggestedTopic.objects.filter(TopicName=topicName).delete()
-            suggestT = SuggestedTopic.objects.all()
-            topics = ApprovedTopic.objects.all()
-            return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
+            messages.success(request, 'Topic rejected successfully!')
+        
         elif stat == 'Delete':
             ApprovedTopic.objects.filter(TopicName=topicName).delete()
             Topic.objects.filter(TopicName=topicName).delete()
-            suggestT = SuggestedTopic.objects.all()
-            topics = ApprovedTopic.objects.all()
-            return render(request, 'ManageTopicAdmin.html',{'person': person , 'topics': topics, 'suggestT': suggestT})
+            messages.success(request, 'Topic deleted successfully!')
+
         elif stat == 'Add':
+            topic_exists = ApprovedTopic.objects.filter(TopicName=topicName).exists()
             if topic_exists:
-                suggestT = SuggestedTopic.objects.all()
-                topics = ApprovedTopic.objects.all()
-                messages.error(request, 'Topic name already exists in ApprovedTopics table!')
-                return render(request, 'ManageTopicAdmin.html',{'person': person , 'topics': topics, 'suggestT': suggestT})
-            ApprovedTopic.objects.create(TopicName=topicName)
-            suggestT = SuggestedTopic.objects.all()
-            topics = ApprovedTopic.objects.all()
-            return render(request, 'ManageTopicAdmin.html',{'person': person , 'topics': topics, 'suggestT': suggestT})
-    return render(request, 'ManageTopicAdmin.html',{'person': person , 'suggestT': suggestT, 'topics': topics})
+                messages.error(request, 'Topic name already exists in Approved Topics table!')
+            else:
+                ApprovedTopic.objects.create(TopicName=topicName)
+                messages.success(request, 'New topic added successfully!')
+
+        # Redirect to the same page after processing the form submission
+        return redirect('topic:Managetopic')
+
+    return render(request, 'ManageTopicAdmin.html', {'person': person, 'suggestT': suggestT, 'topics': topics})

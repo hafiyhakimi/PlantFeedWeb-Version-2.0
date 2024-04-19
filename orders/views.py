@@ -31,15 +31,17 @@ from django.views.generic.base import TemplateView
 from orders.models import Order
 
 import json
-
+    
 def history(request):
     try:
         product=prodProduct.objects.all()
         person=Person.objects.get(Email=request.session['Email'])
         user=Person.objects.all()
         allBasket = Basket.objects.all().filter(Person_fk_id=person.id,is_checkout=1)
+        basketCount = Basket.objects.all().filter(Person_fk_id=person.id,is_checkout=0)
         context = {
             'allBasket': allBasket,
+            'basketCount': basketCount,
             'product': product,
             'person': person,
             'user': user,
@@ -62,7 +64,9 @@ def cancel_order(request):
 
 def complete_order(request):
     transaction_code = request.POST.get('transaction_code')
-
+    # product=prodProduct.objects.all()
+    # product.productStock -= product.productqty
+    # product.save()
     order_obj = Order.objects.get(transaction_code=transaction_code)
     order_obj.status = "Order Received"
     order_obj.save()
@@ -75,9 +79,26 @@ def complete_order(request):
 
 def invoice(request,fk1):
     ids = Basket.objects.get(id=fk1)
+    product = prodProduct.objects.all()
     basket = Basket.objects.all().filter(transaction_code=ids.transaction_code)
     order = Order.objects.get(transaction_code=ids.transaction_code)
-    return render(request,'invoice.html',{'basket':basket,'order':order})
+    return render(request,'invoice.html',{'basket':basket,'order':order, 'product':product})
+
+# def invoice(request, fk1):
+#     try:
+#         basket = Basket.objects.get(id=fk1)
+#         seller_id = basket.productid.Person_fk_id
+#         products = Basket.objects.filter(transaction_code=basket.transaction_code)
+#         order = Order.objects.get(transaction_code=basket.transaction_code)
+
+#         context = {
+#             'products': products,
+#             'order': order,
+#         }
+
+#         return render(request, 'invoice.html', context)
+#     except Basket.DoesNotExist:
+#         raise Http404('Basket does not exist')
 
 def order_again(request, transaction_code):
     basket = Basket.objects.filter(transaction_code=transaction_code, is_checkout=1)
