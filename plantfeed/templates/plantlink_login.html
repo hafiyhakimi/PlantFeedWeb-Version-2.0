@@ -18,6 +18,20 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </head>
 
+{% if messages %}
+  {% for message in messages %}
+    <div id="message" class="alert alert-danger">
+        {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<script>
+  setTimeout(function() {
+    document.getElementById("message").style.display = "none";
+  }, 5000);
+</script>
+
 <body>
     <p class="h3 text-center">Login Form</p>
     <br/>
@@ -38,9 +52,6 @@
         <br/><br/><br/>
         <em>Do not have an account? <a href="{% url 'Register' %}" >Click here</a></em>
         <br/>
-        <hr> {% if messages %} {% for msg in messages %}
-        <b>{{msg}}</b> {% endfor %} {% endif %}
-        <hr />
     </form>
 
 </body>
